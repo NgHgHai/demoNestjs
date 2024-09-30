@@ -1,5 +1,6 @@
 import { TodoEntity } from "src/common/entities/todo.entity"
 
+//TODO: Validate thêm nha em
 export class CreatedTodoDto {
     id?: number;
     title: string;

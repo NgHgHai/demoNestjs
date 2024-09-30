@@ -4,7 +4,8 @@ import { UserEntity } from 'src/common/entities/user.entity';
 import { UpdateUserDto } from './dtos/updateDto';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import * as bcrypt from 'bcrypt';
-import { error } from 'console';
+import { error } from 'console'; //TODO: xoá đi nha e, với import thì e nên nhóm nó lại theo tính năng cho dễ quản lý
+
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -15,7 +16,7 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     @Get('info')
     async getUsers(@Request() req): Promise<UserEntity> {
-        return this.usersService.getUserById(req.user.ssid);
+        return this.usersService.getUserById(req.user.ssid); 
     }
     @HttpCode(HttpStatus.OK)
     @Put('update')
@@ -29,10 +30,12 @@ export class UsersController {
     @Put('changePass')
     async changePassword(@Request() req, @Body() updateDto: UpdateUserDto): Promise<UserEntity> {
         if (!updateDto.oldpass || !updateDto.password) {
+            //TODO: e nên trả về một message lỗi chứ không phải throw error
             throw new Error('Old password and new password are required');
         }
 
         const user = await this.usersService.getUserById(req.ssid);
+        //TODO: e nên check xem user có tồn tại không, nếu không thì trả về một message lỗi
         const isMatch = bcrypt.compare(updateDto.oldpass, user.password)
         try {
             if (isMatch) {

@@ -22,7 +22,7 @@ export class UsersService {
     }
 
     async getAllUsers(): Promise<UserEntity[]> {
-        return await this.userRepository.find();
+        return await this.userRepository.find(); //TODO: Nên lấy phân trang nha e với check deleted = false
     }
 
     async getUserById(id: number): Promise<UserEntity> {
@@ -33,11 +33,12 @@ export class UsersService {
         user.updatedBy = updateBy;
         user.updatedAt = new Date();
         await this.userRepository.update(id, user);
-        return await this.userRepository.findOneBy({ id });
+        return await this.userRepository.findOneBy({ id }); //TODO: e nên để user.updateBy = updateBy; user.updatedAt = new Date(); bên controller hoặc là lấy bên controller sang để 2 bên cũng gán giá trị như nhau kì 
     }
 
     async optionDeleteUser(id: number, isDeleted: boolean, deletedby :string): Promise<UserEntity> {
         const user = await this.userRepository.findOneBy({ id });
+        //TODO: nếu chỗ này e có tìm rồi mới update giả sử nó null thì sao, phải kiểm tra điều kiện trc khi gán giá trị và update
         user.deleted = isDeleted ;
         user.deletedBy = deletedby;
         user.deletedAt = new Date();

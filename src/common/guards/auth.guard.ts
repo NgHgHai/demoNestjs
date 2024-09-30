@@ -15,6 +15,7 @@ export class AuthGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
         if (!token) {
+            // TODO: nên để message trong một file constant
             throw new UnauthorizedException('You are not authorized to access this resource');
         }
         try {
@@ -24,6 +25,7 @@ export class AuthGuard implements CanActivate {
             console.log(payload);
             return true;
         } catch (error) {
+             // TODO: nên để message trong một file constant
             throw new UnauthorizedException('You are not authorized to access this resource');
         }
 

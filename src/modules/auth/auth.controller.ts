@@ -7,6 +7,7 @@ import { Role } from 'src/common/enums/role.enum';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 
+//TODO: Nếu mục đích phân quyền của e chỉ ở auth controller thì oke, còn nếu muốn phân quyền ở tất cả các controller thì e cần phải sửa lại ở không thể làm như này có nhiều controller khác nhau đc
 @UseGuards(RolesGuard)
 @Controller('auth')
 export class AuthController {
@@ -28,6 +29,7 @@ export class AuthController {
     @Get('admin')
     @Roles(Role.Admin)
     // @UseGuards(AuthGuard)
+    //TODO: typescript sao để req là any dị -> req: Request
     async adminLogin(@Request() req): Promise<any> {
         console.log('day la admin');
         return req.user;
@@ -35,6 +37,7 @@ export class AuthController {
 
     @HttpCode(HttpStatus.CREATED)
     @Post('register')
+    //TODO: nếu e return về any thì thôi xoá lun cái Promise<any> đi e
     async register(@Body() registerDto: RegisterDto): Promise<any> {
         console.log(registerDto);
         const user = await this.authService.register(registerDto);

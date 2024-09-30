@@ -6,6 +6,7 @@ export class TodoEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'todo_id', type: 'int' })
   id: number;
 
+  //TODO: user_id snake_case but isCompleted camelCase
   @Column({ name: "user_id", type: "int", nullable: false })
   userId: number;
 
@@ -15,6 +16,7 @@ export class TodoEntity extends BaseEntity {
   @Column({ name: "description", length: 500, nullable: true })
   description: string;
 
+  //TODO: change name from camelCase to snake_case or all field to camelCase
   @Column({ name: "isCompleted", type: "bit", default: false })
   isCompleted: boolean;
 

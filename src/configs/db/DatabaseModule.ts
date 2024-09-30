@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 @Module({
     imports: [
+        //TODO: Cấu hình kết nối với database để env nha em
         TypeOrmModule.forRoot({
             type: 'mssql',
             host: 'localhost',  

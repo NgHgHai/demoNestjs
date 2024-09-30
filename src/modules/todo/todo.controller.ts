@@ -5,12 +5,12 @@ import { CreatedTodoDto } from './dtos/createdToDoDto';
 import { TodoEntity } from 'src/common/entities/todo.entity';
 
 
+//TODO: Tương tự với auth controller nhen
 @UseGuards(AuthGuard)
 @Controller('todo')
 export class TodoController {
     constructor(
         private readonly todoService: TodoService,
-
     ) { }
     @HttpCode(HttpStatus.CREATED)
     @Post('create')
@@ -20,7 +20,7 @@ export class TodoController {
             todo.title = createdTodoDto.title;
             todo.description = createdTodoDto.description;
             todo.dueTime = createdTodoDto.dueTime;
-            todo.status = Number(createdTodoDto.status);
+            todo.status = Number(createdTodoDto.status); //TODO: Nếu status của e là number thì e sửa lại ở dto là number lun
             todo.priority = createdTodoDto.priority;
             todo.userId = createdTodoDto.userId;
             return await this.todoService.create(todo, req.user.username);

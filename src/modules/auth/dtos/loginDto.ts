@@ -1,4 +1,5 @@
 export class LoginDto {
+    //TODO: Em xem thêm class-validator để validate dữ liệu
     email: string;
     password: string;
 
