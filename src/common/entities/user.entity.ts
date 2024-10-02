@@ -1,5 +1,5 @@
-//TODO: delete if not needed
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { BaseEntity } from './base.entity';
 @Entity({ name: 'Users' })
 export class UserEntity extends BaseEntity {

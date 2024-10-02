@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { DATABASE } from 'src/common/constants'
 
 @Module({
     imports: [
-        //TODO: Cấu hình kết nối với database để env nha em
         TypeOrmModule.forRoot({
             type: 'mssql',
-            host: 'localhost',  
-            port: 1433,         
-            username: 'sa', 
-            password: '@Bc12345', 
-            database: 'Todo_app',  
+            host: DATABASE.HOST,
+            port: DATABASE.PORT,
+            username: DATABASE.USER,
+            password: DATABASE.PASSWORD,
+            database: DATABASE.NAME, 
             autoLoadEntities: true,
             synchronize: false,
             options: {
@@ -18,6 +18,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
                 trustServerCertificate: true, // Bỏ qua chứng chỉ tự ký
             }
         }),
+
     ],
 
 })

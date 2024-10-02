@@ -2,12 +2,9 @@ import { Controller, Get, HttpCode, HttpStatus, UseGuards, Request, Put, Body, D
 import { UsersService } from './users.service';
 import { UserEntity } from 'src/common/entities/user.entity';
 import { UpdateUserDto } from './dtos/updateDto';
-import { AuthGuard } from 'src/common/guards/auth.guard';
 import * as bcrypt from 'bcrypt';
-import { error } from 'console'; //TODO: xoá đi nha e, với import thì e nên nhóm nó lại theo tính năng cho dễ quản lý
 
 
-@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
     constructor(
@@ -16,36 +13,43 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     @Get('info')
     async getUsers(@Request() req): Promise<UserEntity> {
-        return this.usersService.getUserById(req.user.ssid); 
+        const user = await this.usersService.getUserById(req.user.ssid);
+        user.password = undefined;
+        return user;
     }
     @HttpCode(HttpStatus.OK)
     @Put('update')
     async updateUser(@Request() req, @Body() updateUserDto: UpdateUserDto): Promise<UserEntity> {
         const user = req.user;
         user.username = updateUserDto.name;
-        user.password = updateUserDto.password;
-        return this.usersService.updateUser(req.user.ssid, user, req.user.ssid);
+        // user.password = updateUserDto.password;
+        this.usersService.updateUser(req.user.ssid, user);
+        return user;
     }
     @HttpCode(HttpStatus.OK)
     @Put('changePass')
     async changePassword(@Request() req, @Body() updateDto: UpdateUserDto): Promise<UserEntity> {
-        if (!updateDto.oldpass || !updateDto.password) {
+        if (!updateDto.oldPass || !updateDto.password) {
             //TODO: e nên trả về một message lỗi chứ không phải throw error
             throw new Error('Old password and new password are required');
         }
-
+    
         const user = await this.usersService.getUserById(req.ssid);
-        //TODO: e nên check xem user có tồn tại không, nếu không thì trả về một message lỗi
-        const isMatch = bcrypt.compare(updateDto.oldpass, user.password)
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const isMatch = await bcrypt.compare(updateDto.oldPass, user.password);
         try {
             if (isMatch) {
-                user.password = updateDto.password;
-                return this.usersService.updateUser(req.ssid, user, req.ssid);
+                user.password = await bcrypt.hash(updateDto.password, 10);
+                console.log(user,"vo dung cho r ne");
+                await this.usersService.updateUser(user, user.id + '');
+                return user;
             } else {
                 throw new Error('Old password is incorrect');
             }
         } catch (e) {
-            throw new error(e);
+            throw new Error(e.message);
         }
     }
     @HttpCode(HttpStatus.OK)

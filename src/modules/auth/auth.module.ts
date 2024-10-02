@@ -8,7 +8,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
   controllers: [AuthController],
   imports: [UsersModule,JwtModule.register({
     global: true,
-    secret: 'secretKey', //TODO: e nên để secret key trong file env
+    secret: process.env.SECRET_KEY||'secret', 
   })
   ],
   providers: [AuthService],

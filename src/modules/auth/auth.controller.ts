@@ -1,14 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Post, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/loginDto';
 import { RegisterDto } from './dtos/registerDto';
-import { Roles } from 'src/common/decorator/roles.decorator';
-import { Role } from 'src/common/enums/role.enum';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { PublicResourceGuard } from 'src/common/guards/publicResource.guard';
+import { catchErrController } from 'src/utils/error.util';
+import { Request } from '@nestjs/common';
+import { AUTHENTICATION_EXIT_CODE } from 'src/common/enums/error-code.enum';
+import { error } from 'console';
 
-//TODO: Nếu mục đích phân quyền của e chỉ ở auth controller thì oke, còn nếu muốn phân quyền ở tất cả các controller thì e cần phải sửa lại ở không thể làm như này có nhiều controller khác nhau đc
-@UseGuards(RolesGuard)
+@UseGuards(PublicResourceGuard)
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -20,26 +20,24 @@ export class AuthController {
     }
     @HttpCode(HttpStatus.OK)
     @Post('login')
-    async login(@Body() loginDto: LoginDto): Promise<any> {
-        console.log(loginDto);
-        return this.authService.login(loginDto.email, loginDto.password);
-    }
-    
-    @HttpCode(HttpStatus.OK)
-    @Get('admin')
-    @Roles(Role.Admin)
-    // @UseGuards(AuthGuard)
-    //TODO: typescript sao để req là any dị -> req: Request
-    async adminLogin(@Request() req): Promise<any> {
-        console.log('day la admin');
-        return req.user;
+    async login(@Req() req: Request ,@Body() loginDto: LoginDto): Promise<any> {
+        let response = null;
+        const result = await this.authService.login(loginDto.email, loginDto.password);
+        if (result === AUTHENTICATION_EXIT_CODE.USER_NOT_FOUND || result === AUTHENTICATION_EXIT_CODE.PASSWORD_NOT_CORRECT) {
+             response ={
+                errorCode: result,
+                message: result === AUTHENTICATION_EXIT_CODE.USER_NOT_FOUND ? 'User not found' : 'Password not correct',
+            }
+            catchErrController(new HttpException(response,401), req);
+        } 
+        return result;
     }
 
     @HttpCode(HttpStatus.CREATED)
     @Post('register')
-    //TODO: nếu e return về any thì thôi xoá lun cái Promise<any> đi e
-    async register(@Body() registerDto: RegisterDto): Promise<any> {
+    async register(@Body() registerDto: RegisterDto) {
         console.log(registerDto);
+        
         const user = await this.authService.register(registerDto);
         console.log(user.role);
         return user.role;

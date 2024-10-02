@@ -12,7 +12,7 @@ export class UsersService {
         private readonly userRepository: Repository<UserEntity>,
     ) { }
 
-    async createUser(registerDto : RegisterDto): Promise<UserEntity> {
+    async createUser(registerDto: RegisterDto): Promise<UserEntity> {
         const user: UserEntity = new UserEntity();
         user.email = registerDto.email;
         user.username = registerDto.username;
@@ -29,19 +29,16 @@ export class UsersService {
         return await this.userRepository.findOneBy({ id });
     }
 
-    async updateUser(id: number, user: UserEntity, updateBy: string): Promise<UserEntity> {
-        user.updatedBy = updateBy;
-        user.updatedAt = new Date();
-        await this.userRepository.update(id, user);
-        return await this.userRepository.findOneBy({ id }); //TODO: e nên để user.updateBy = updateBy; user.updatedAt = new Date(); bên controller hoặc là lấy bên controller sang để 2 bên cũng gán giá trị như nhau kì 
+    async updateUser(user: UserEntity, updateBy: string): Promise<boolean> {
+       const result = await this.userRepository.update(user.id, user);
+       return result.affected > 0;
     }
 
-    async optionDeleteUser(id: number, isDeleted: boolean, deletedby :string): Promise<UserEntity> {
+    async optionDeleteUser(id: number, isDeleted: boolean, deletedby: string): Promise<UserEntity> {
         const user = await this.userRepository.findOneBy({ id });
-        //TODO: nếu chỗ này e có tìm rồi mới update giả sử nó null thì sao, phải kiểm tra điều kiện trc khi gán giá trị và update
-        user.deleted = isDeleted ;
-        user.deletedBy = deletedby;
-        user.deletedAt = new Date();
+        if (!user) {
+            throw new Error('User not found');
+        }
         await this.userRepository.update(id, user);
         return user;
     }
