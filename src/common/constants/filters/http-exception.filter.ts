@@ -1,6 +1,6 @@
 import { ArgumentsHost, ExceptionFilter, HttpException } from "@nestjs/common";
 import { SERVER_EXIT_CODE, VALIDATION_EXIT_CODE } from "src/common/enums/error-code.enum";
-import { IHttpResponse } from "src/common/interface/IHttpResponse.interface";
+import { IHttpResponse } from "src/common/interface/http-response.interface";
 import { convertString2JSON } from "src/utils/string.utils";
 
 
