@@ -9,9 +9,10 @@ import { HttpExceptionFilter } from './common/constants/filters/http-exception.f
 import { PublicResourceGuard } from './common/guards/publicResource.guard';
 import { TodoModule } from './modules/todo/todo.module';
 import { UsersModule } from './modules/users/users.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 
 @Module({
-  imports: [AuthModule, DatabaseModule, TodoModule, UsersModule],
+  imports: [AuthModule, DatabaseModule, TodoModule, UsersModule, UploadsModule],
   controllers: [AppController],
   providers: [
     AppService,

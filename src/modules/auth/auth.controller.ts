@@ -90,6 +90,8 @@ export class AuthController {
             newUser.email = email;
             newUser.password = hashPassword;
             newUser.role = Role.USER;
+            newUser.createdAt = new Date();
+            newUser.createdBy = 'system';
 
             newUser = await this.authService.save(newUser);
 

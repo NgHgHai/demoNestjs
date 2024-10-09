@@ -6,6 +6,7 @@ import { Request } from 'express';
 // import { writeLog } from './log.utils';
 
 import { SERVER_EXIT_CODE } from 'src/common/enums/error-code.enum';
+// import { writeLog } from './log.utils';
 
 export const catchErrService = (path: string, err: any) => {
   console.log(err);

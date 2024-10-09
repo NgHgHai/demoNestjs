@@ -13,7 +13,7 @@ export class UpdateUserDto {
     name?: string;
     @ApiProperty({
         description: 'password must be required when update password, uses to update password',
-        example: '123456'
+        example: '12345678'
     })
     @IsOptional()
     password?: string;
@@ -21,7 +21,7 @@ export class UpdateUserDto {
 
     @ApiProperty({
         description: 'old password, must be required when update password, uses to check old password',
-        example: '123456',
+        example: '12345678',
     })
     @IsOptional()
     oldPass?: string;

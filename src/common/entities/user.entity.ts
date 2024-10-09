@@ -7,7 +7,7 @@ export class UserEntity extends BaseEntity {
     @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
     id: number;
 
-    @Column({ name: 'username', type: 'varchar', length: 50, nullable: false})
+    @Column({ name: 'user_name', type: 'varchar', length: 50, nullable: false})
     username: string;
 
     @Column({ name: 'email', type: 'varchar', length: 50, nullable: false,unique: true })
@@ -19,10 +19,10 @@ export class UserEntity extends BaseEntity {
     @Column({ name: 'role', type: 'int', nullable: false })
     role: number;
     
-    @Column({ name: 'isActive', type: 'bit', default: true })
+    @Column({ name: 'is_active', type: 'bit', default: true })
     isActive: boolean;
     
-    @Column({ name: 'isVerified', type: 'bit', default: false })
+    @Column({ name: 'is_verified', type: 'bit', default: false })
     isVerified: boolean;
     
 }

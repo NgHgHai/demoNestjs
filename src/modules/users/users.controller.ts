@@ -21,12 +21,13 @@ export class UsersController {
     constructor(
         private readonly usersService: UsersService,
     ) { }
-
+    
     @ApiOperation({ summary: 'Get hello' })
     @Public()
     @Get('hello')
     @HttpCode(HttpStatus.OK)
     async getHello(): Promise<string> {
+        this.usersService.hello();
         return 'Hello, wellcome to login page !';
     }
 
@@ -34,10 +35,19 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     @Get('info')
     @Roles(Role.USER)
-    async getUsers(req: Request) {
-
-        const user = await this.usersService.getUserById(req['user'].id);
-
+    async getUsers(@Req() req: Request) {
+        // console.log('--------------------------');
+        //console.log('user: ',req['user']?.id);
+        const userId = req['user']?.id;
+        // console.log('userId: ', userId);
+        if(!userId){
+            throw new HandlerException(
+                DATABASE_EXIT_CODE.NO_CONTENT,
+                req.url,
+                BaseErrorMassage.NO_CONTENT,
+            )
+        }
+        const user = await this.usersService.getUserById(userId)
         if (!user) {
             throw new HandlerException(
                 DATABASE_EXIT_CODE.NO_CONTENT,
@@ -45,7 +55,6 @@ export class UsersController {
                 BaseErrorMassage.NO_CONTENT,
             )
         }
-
         user.password = undefined;
         return returnObjects(user);
     }
@@ -54,7 +63,7 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     @Put('update')
     async updateUser(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
-        const userId = req['user'].id;
+        const userId = req['user']?.id;
         let user = await this.usersService.getUserById(userId);
         if (!user) {
             throw new HandlerException(
@@ -68,6 +77,9 @@ export class UsersController {
         user.isActive = isActive ?? user.isActive;
         user.isVerified = isVerified ?? user.isVerified;
         user.role = role ?? user.role;
+        user.updatedAt = new Date();
+        // console.log('user: ', user);
+        user.updatedBy = userId+'';
 
         const updated = await this.usersService.updateUser(user);
         if (!updated) {
@@ -84,7 +96,7 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     @Put('changePass')
     @Roles(Role.USER)
-    async changePassword(req: Request, @Body() updateDto: UpdateUserDto) {
+    async changePassword(@Req() req: Request, @Body() updateDto: UpdateUserDto) {
         if (!updateDto.oldPass || !updateDto.password) {
             throw new HandlerException(
                 DATABASE_EXIT_CODE.NO_CONTENT,
@@ -133,7 +145,7 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     @Roles(Role.USER)
     @Delete('delete')
-    async deleteUser(req: Request) {
+    async deleteUser(@Req() req: Request) {
         const userId = req['user'].id;
         const user = await this.usersService.getUserById(userId);
         if (!user) {
@@ -145,7 +157,7 @@ export class UsersController {
         }
         user.deleted = true;
         user.deletedAt = new Date();
-        user.deletedBy = userId;
+        user.deletedBy = userId+'';
         const result = await this.usersService.updateUser(user);
         if (!result) {
             throw new HandlerException(

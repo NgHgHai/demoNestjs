@@ -48,13 +48,14 @@ export class TodoController {
 
 
 
-    @ApiOperation({ summary: 'Create todo for user' })
+    @ApiOperation({ summary: 'Create todo for user, must be login to create' })
     @Roles(Role.USER)
     @HttpCode(HttpStatus.CREATED)
     @Post('create')
     async create(@Req() req: Request, @Body() createdTodoDto: CreatedTodoDto) {
         try {
             const { title, description, dueTime, priority, status, userId } = createdTodoDto;
+            console.log('Dto: ', createdTodoDto);
             let newTodo = new TodoEntity();
             newTodo.title = title;
             newTodo.description = description;
@@ -63,7 +64,7 @@ export class TodoController {
             newTodo.status = status;
 
             newTodo.userId = userId;
-            newTodo.createdBy = req['user'].id;
+            newTodo.createdBy = req['user'].id + '';
             newTodo.createdAt = new Date();
 
             newTodo = await this.todoService.saveTodo(newTodo);
@@ -89,15 +90,28 @@ export class TodoController {
             const id = parseInt(req.params.id);
             const todo = await this.todoService.getTodoById(id);
             if (!todo) {
+                console.log('khong co du lieu');
                 throw new HandlerException(
                     DATABASE_EXIT_CODE.NO_CONTENT,
                     req.url,
                     BaseErrorMassage.NO_CONTENT,
                 );
             }
+            // console.log('todo: ', todo);
+            // console.log('=====================================');
+            // console.log('user: ', req['user'].id);
+
+            if (todo.userId !== req['user'].id) {
+                // console.log('no permission');
+                throw new HandlerException(
+                    DATABASE_EXIT_CODE.NO_CONTENT,
+                    req.url,
+                    ErrorMessage.NO_PERMISSION,
+                );
+            }
             return returnObjects(todo);
         } catch (e) {
-            return catchErrController(req, e);
+            return catchErrController(e, req);
         }
     }
 
@@ -123,7 +137,7 @@ export class TodoController {
             todoUpdate.priority = priority;
             todoUpdate.status = status;
             todoUpdate.userId = userId;
-            todoUpdate.updatedBy = req['user'].id;
+            todoUpdate.updatedBy = req['user'].id + '';
             todoUpdate.updatedAt = new Date();
 
             todoUpdate = await this.todoService.saveTodo(todoUpdate);
@@ -136,7 +150,7 @@ export class TodoController {
             }
             return returnObjects({ id: todoUpdate.id });
         } catch (e) {
-            return catchErrController(req, e);
+            return catchErrController(e, req);
         }
     }
     @ApiOperation({ summary: 'Delete todo by id' })
@@ -144,6 +158,8 @@ export class TodoController {
     @Delete(':id')
     async delete(@Req() req: Request) {
         try {
+            const user = req['user'];
+            console.log('user: ', user);
             const id = parseInt(req.params.id);
             let todo = await this.todoService.getTodoById(id);
             if (!todo) {
@@ -153,23 +169,32 @@ export class TodoController {
                     BaseErrorMassage.NO_CONTENT,
                 );
             }
-            todo.deletedBy = req['user'].id;
-            todo.deletedAt = new Date();
-            todo.deleted = true;
 
-            const result = await this.todoService.saveTodo(todo);
+            // if (user.role === Role.ADMIN || todo.userId === user.id) {
+            if (todo.userId === user.id) {
+                todo.deletedBy = req['user'].id + '';
+                todo.deletedAt = new Date();
+                todo.deleted = true;
 
-            if (!result) {
+                const result = await this.todoService.saveTodo(todo);
+
+                if (!result) {
+                    throw new HandlerException(
+                        DATABASE_EXIT_CODE.NO_CONTENT,
+                        req.url,
+                        ErrorMessage.UPDATE_FAILED,
+                    );
+                }
+                return returnObjects({ id: todo.id });
+            } else {
                 throw new HandlerException(
                     DATABASE_EXIT_CODE.NO_CONTENT,
                     req.url,
-                    ErrorMessage.UPDATE_FAILED,
+                    ErrorMessage.NO_PERMISSION,
                 );
             }
-            return returnObjects({ id: todo.id });
-
         } catch (e) {
-            return catchErrController(req, e);
+            return catchErrController(e, req);
         }
     }
 

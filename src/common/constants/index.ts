@@ -32,3 +32,5 @@ export const ROLES_KEY = process.env.ROLES_KEY || 'exampleRoles';
 export const SENTRY_DSN = process.env.SENTRY_DSN || 'register-your-dsn';
 export const SALT = parseInt(process.env.SALT) || 10;
 export const IS_PUBLIC_KEY = process.env.IS_PUBLIC_KEY || 'isPublic';
+
+export const MULTER_DEST = process.env.MULTER_DEST || './uploads';
